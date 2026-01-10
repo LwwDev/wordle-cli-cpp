@@ -23,17 +23,39 @@ void Game::menu() {
   }
 }
 
-void Game::start() { 
+void Game::start() {
   char colors[5];
-  std::string secret_word = picker(); 
+  std::string secret_word = picker();
   std::string guess = getValidGuess();
   evaluateGuess(guess, secret_word, colors);
   updateBoard();
 }
 
-void Game::evaluateGuess(const std::string& guess, const std::string& secret_word, char colors[5]) {
-  for(int i = 0; i < 5; i++){
+void Game::evaluateGuess(const std::string &guess,
+                         const std::string &secret_word, char colors[5]) {
+  for (int i = 0; i < 5; i++) {
+    if (guess[i] == secret_word[i]) {
+      colors[i] = 'G';
+    } else if (secret_word.find(guess[i]) != std::string::npos) {
+      colors[i] = 'Y';
+    } else {
+      colors[i] = 'X';
+    }
   }
+
+  bool won = true;
+  for(int i = 0; i < 5; i++){
+    if (colors[i] != 'G'){
+      won = false;
+      break;
+    }
+  }
+
+  if (won){
+    std::cout << "Bitch you guessed it! \n";
+  }
+
+
 }
 
 void Game::updateBoard() {}
@@ -43,8 +65,8 @@ std::string Game::getValidGuess() {
     std::string currentGuess;
     std::cout << "Type a 5 letter word: ";
     std::getline(std::cin, currentGuess);
-    
-    if (currentGuess.length() == 5){
+
+    if (currentGuess.length() == 5) {
       return currentGuess;
     }
   }
@@ -60,10 +82,10 @@ std::string Game::picker() {
 
 Game::Game() {
   words = {
-    "about", "above", "abuse", "actor", "acute", "admit", "adopt", "adult",
-    "after", "again", "agent", "agree", "ahead", "alarm", "album", "alert",
-    "align", "alike", "alive", "allow", "alone", "along", "alter", "angel",
-    "anger", "angle", "angry", "apart", "apple", "apply", "arena", "argue",
+      "about", "above", "abuse", "actor", "acute", "admit", "adopt", "adult",
+      "after", "again", "agent", "agree", "ahead", "alarm", "album", "alert",
+      "align", "alike", "alive", "allow", "alone", "along", "alter", "angel",
+      "anger", "angle", "angry", "apart", "apple", "apply", "arena", "argue",
       "arise", "array", "aside", "asset", "audio", "avoid", "awake", "award",
       "aware", "badly", "baker", "bases", "basic", "basis", "beach", "began",
       "begin", "being", "below", "bench", "billy", "birth", "black", "blame",
