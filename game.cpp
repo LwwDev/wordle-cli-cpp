@@ -3,13 +3,13 @@
 #include <random>
 
 void Game::menu() {
-  char opt;
+  char option;
   std::cout << "==================\n";
   std::cout << "===== Wordle =====\n";
   std::cout << "==================\n\n";
   std::cout << "1. Play!\n";
   std::cout << "2. Exit.\n";
-  std::cin >> opt;
+  std::cin >> option;
 
   switch (opt) {
   case '1':
