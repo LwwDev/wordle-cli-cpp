@@ -2,48 +2,45 @@
 #include <iostream>
 #include <random>
 
-void Game::menu() {
-  char option;
-  std::cout << "==================\n";
-  std::cout << "===== Wordle =====\n";
-  std::cout << "==================\n\n";
-  std::cout << "1. Play!\n";
-  std::cout << "2. Exit.\n";
-  std::cin >> option;
+void Game::menu() { 
+  while(true){
+    char option;
+    std::cout << "==================\n";
+    std::cout << "===== Wordle =====\n";
+    std::cout << "==================\n\n";
+    std::cout << "1. Play!\n";
+    std::cout << "2. Exit.\n";
+    std::cin >> option;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-  switch (opt) {
-  case '1':
-    start();
-    break;
-  case '2':
-    return;
-  default:
-    std::cout << "not an option";
-    break;
+    switch (option) {
+      case '1': start(); break;
+      case '2': std::cout << "Exiting..."; return;
+      default: std::cout << "not an option";
+    }
   }
 }
 
 void Game::start() {
-  char colors[5];
-  std::string secret_word = picker();
-  std::string guess = getValidGuess();
+  char colors[5]; // char array of colors
+  std::string secret_word = picker(); // function that picks a random word in the wordlist we have
+  std::string guess = getValidGuess(); // 
   evaluateGuess(guess, secret_word, colors);
   updateBoard();
 }
 
-void Game::evaluateGuess(const std::string &guess,
-                         const std::string &secret_word, char colors[5]) {
-  for (int i = 0; i < 5; i++) {
-    if (guess[i] == secret_word[i]) {
-      colors[i] = 'G';
-    } else if (secret_word.find(guess[i]) != std::string::npos) {
-      colors[i] = 'Y';
-    } else {
-      colors[i] = 'X';
+void Game::evaluateGuess(const std::string &guess, const std::string &secret_word, char colors[5]) { // includes all of these & means the adress of so the adress of guess this does not copy it and all the effects that  when they are in the () it means that they are parameters that are being passed into this variable if i understand it correctly 
+  for (int i = 0; i < 5; i++) { // int i is 0 and continue until i is bigger than 5 increment by 1 
+    if (guess[i] == secret_word[i]) { // as i understand it is that it goes through the word guess five times checking each position in the array if any charecther is the same as secret_word it will do colors[i] im not completely sure what this means i think
+      colors[i] = 'G'; // i think thi means turn the position of the array colors to G meaning green
+    } else if (secret_word.find(guess[i]) != std::string::npos) { // else if find thing im not sure how it works it probably finds the letter in guess i but im not srue waht != NOT std::string::npos means npos like neutral position? 
+      colors[i] = 'Y'; //assign it to y
+    } else {  // else
+      colors[i] = 'X'; // make it X non color
     }
   }
 
-  bool won = true;
+  bool won = true; 
   for(int i = 0; i < 5; i++){
     if (colors[i] != 'G'){
       won = false;
@@ -73,11 +70,11 @@ std::string Game::getValidGuess() {
 }
 
 std::string Game::picker() {
-  std::random_device rd;
-  static std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dist(0, words.size() - 1);
-  std::string secret_word = words[dist(gen)];
-  return secret_word;
+  std::random_device rd; // functions as a device i guess like foo
+  static std::mt19937 gen(rd()); // the generator
+  std::uniform_int_distribution<> dist(0, words.size() - 1); // so from 0 to words size minus 1 
+  std::string secret_word = words[dist(gen)]; // this preforms the action of assigning the random word to become the variable secret word
+  return secret_word; // returns it to another function ? or what does this do again ?
 }
 
 Game::Game() {
