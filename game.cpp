@@ -22,25 +22,79 @@ void Game::menu() {
 }
 
 void Game::start() {
-  char colors[5]; // char array of colors
-  std::string secret_word = picker(); // function that picks a random word in the wordlist we have
-  std::string guess = getValidGuess(); // 
-  evaluateGuess(guess, secret_word, colors);
-  updateBoard();
-}
+  guesses.clear();
+  colorHistory.clear();
 
-void Game::evaluateGuess(const std::string &guess, const std::string &secret_word, char colors[5]) { // includes all of these & means the adress of so the adress of guess this does not copy it and all the effects that  when they are in the () it means that they are parameters that are being passed into this variable if i understand it correctly 
-  for (int i = 0; i < 5; i++) { // int i is 0 and continue until i is bigger than 5 increment by 1 
-    if (guess[i] == secret_word[i]) { // as i understand it is that it goes through the word guess five times checking each position in the array if any charecther is the same as secret_word it will do colors[i] im not completely sure what this means i think
-      colors[i] = 'G'; // i think thi means turn the position of the array colors to G meaning green
-    } else if (secret_word.find(guess[i]) != std::string::npos) { // else if find thing im not sure how it works it probably finds the letter in guess i but im not srue waht != NOT std::string::npos means npos like neutral position? 
-      colors[i] = 'Y'; //assign it to y
-    } else {  // else
-      colors[i] = 'X'; // make it X non color
+  std::string secret_word = picker(); // function that picks a random word in the wordlist we have
+  bool won = false;
+
+  for (int attempt = 0; attempt < 6; attempt++) {
+    updateBoard();
+    std::cout << "\nAttempt " << (attempt + 1) << " of 6\n";
+
+    std::string guess = getValidGuess();
+    char colors[5]; // char array of colors
+
+    won = evaluateGuess(guess, secret_word, colors);
+
+    // Store the guess and colors
+    guesses.push_back(guess);
+    colorHistory.push_back(std::string(colors, 5));
+
+    if (won) {
+      updateBoard();
+      std::cout << "\nYou guessed it in " << (attempt + 1) << " tries!\n";
+      return;
     }
   }
 
-  bool won = true; 
+  // If we get here, player lost
+  updateBoard();
+  std::cout << "\nGame Over! The word was: " << secret_word << "\n";
+}
+
+bool Game::evaluateGuess(const std::string &guess, const std::string &secret_word, char colors[5]) {
+  // First pass: Mark all exact matches (green)
+  for (int i = 0; i < 5; i++) {
+    if (guess[i] == secret_word[i]) {
+      colors[i] = 'G'; // Green - correct letter, correct position
+    } else {
+      colors[i] = 'X'; // Default to gray
+    }
+  }
+
+  // Second pass: Mark letters in wrong position (yellow)
+  // Need to count how many of each letter are available for yellow marking
+  for (int i = 0; i < 5; i++) {
+    if (colors[i] == 'X') { // Only check non-green positions
+      // Count how many times this letter appears in secret_word and isn't already marked green
+      int availableCount = 0;
+      int usedCount = 0;
+
+      for (int j = 0; j < 5; j++) {
+        if (secret_word[j] == guess[i]) {
+          availableCount++;
+          if (colors[j] == 'G' && guess[j] == guess[i]) {
+            usedCount++;
+          }
+        }
+      }
+
+      // Count how many yellows we've already assigned for this letter
+      for (int j = 0; j < i; j++) {
+        if (guess[j] == guess[i] && colors[j] == 'Y') {
+          usedCount++;
+        }
+      }
+
+      if (availableCount > usedCount) {
+        colors[i] = 'Y'; // Yellow - correct letter, wrong position
+      }
+    }
+  }
+
+  // Check if player won
+  bool won = true;
   for(int i = 0; i < 5; i++){
     if (colors[i] != 'G'){
       won = false;
@@ -48,14 +102,40 @@ void Game::evaluateGuess(const std::string &guess, const std::string &secret_wor
     }
   }
 
-  if (won){
-    std::cout << "Bitch you guessed it! \n";
-  }
-
-
+  return won;
 }
 
-void Game::updateBoard() {}
+void Game::updateBoard() {
+  std::cout << "\n==================\n";
+  std::cout << "   WORDLE BOARD\n";
+  std::cout << "==================\n";
+
+  // Display all previous guesses with colors
+  for (size_t i = 0; i < guesses.size(); i++) {
+    std::cout << "  ";
+    for (int j = 0; j < 5; j++) {
+      char letter = guesses[i][j];
+      char color = colorHistory[i][j];
+
+      // Display letter with color indicator
+      if (color == 'G') {
+        std::cout << "\033[42;30m " << (char)toupper(letter) << " \033[0m"; // Green background
+      } else if (color == 'Y') {
+        std::cout << "\033[43;30m " << (char)toupper(letter) << " \033[0m"; // Yellow background
+      } else {
+        std::cout << "\033[47;30m " << (char)toupper(letter) << " \033[0m"; // Gray background
+      }
+    }
+    std::cout << "\n";
+  }
+
+  // Display remaining empty rows
+  for (size_t i = guesses.size(); i < 6; i++) {
+    std::cout << "  _ _ _ _ _\n";
+  }
+
+  std::cout << "==================\n";
+}
 
 std::string Game::getValidGuess() {
   while (true) {
